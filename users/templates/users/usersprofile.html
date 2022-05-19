@@ -48,10 +48,19 @@
                     </p>
                     <p>
                         <label for="{{ object.profile.birthday_at.id_for_label }}">Дата рождения:</label>
-                        <input type="text" name="birthday_at" value="{{ object.profile.birthday_at|date:"d.m.Y" }}" readonly=""
+                        <input type="text" name="birthday_at" value="{{ object.profile.birthday_at|date:'d.m.Y' }}" readonly=""
                                class="form-control py-2" id="id_birthday_at">
                     </p>
                 </form>
+                {% if object.id != user.id %}
+                <p>
+                    {% if friend %}
+                        <a class="btn btn-outline-danger" href="{% url 'drevo' %}">Удалить из друзей</a>
+                    {% else %}
+                        <a class="btn btn-outline-success" href="{% url 'users:friend_request' object.id %}">Предложить дружбу</a>
+                    {% endif %}
+                </p>
+                {% endif %}
             </div>
         </div>
     </div>

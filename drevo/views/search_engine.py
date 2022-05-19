@@ -3,6 +3,7 @@ from ..models import *
 from django.db.models import (Q,
                               QuerySet)
 from itertools import permutations, combinations
+from typing import List as list
 
 
 class SearchEngineMixin:

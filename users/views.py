@@ -1,6 +1,7 @@
 from django.shortcuts import HttpResponseRedirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.contrib import auth, messages
+from django.views import View
 from django.views.generic import FormView, CreateView, UpdateView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
@@ -8,7 +9,7 @@ from django.http import Http404
 from users.forms import UserLoginForm, UserRegistrationForm, UserModelForm
 from users.forms import ProfileModelForm, UserPasswordRecoveryForm
 from users.forms import UserSetPasswordForm
-from users.models import User, Profile
+from users.models import User, Profile, Friend
 
 
 class LoginFormView(FormView):
@@ -171,16 +172,54 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context['object'] = None
+        context['friend'] = None
 
         _id = self.kwargs.get(self.pk_url_kwarg)
         if _id:
             _object = get_object_or_404(User, id=_id)
-
             if _object:
                 context['object'] = _object
+                if Friend.objects.filter(user=self.request.user.id, friend=_id):
+                    context['friend'] = True
 
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
+
+
+class UserFriendsTemplateView(LoginRequiredMixin, TemplateView):
+    template_name = 'users/usersfriends.html'
+    pk_url_kwarg = 'id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['object'] = None
+        context['friends'] = None
+        context['friend_requests'] = None
+
+        _id = self.kwargs.get(self.pk_url_kwarg)
+        if _id:
+            _object = get_object_or_404(Profile, user=_id)
+            if _object:
+                context['object'] = _object
+                context['friends'] = Friend.objects.filter(user=_id)
+                context['friend_requests'] = _object.friend_requests
+
+        context['title'] = f'Друзья пользователя {_object.user}'
+        return context
+
+
+class UserFriendRequest(View):
+    model = Profile
+
+    def get(self, request, *args, **kwargs):
+        print(kwargs)
+        print(self.request.user.id)
+        _object = Profile.objects.filter(user=kwargs['obj']).first()
+        if _object:
+            _object.friend_requests.add(self.request.user.id)
+            _object.save()
+        return HttpResponseRedirect(reverse('users:usersprofile', args=[kwargs['obj']]))
 
 
 class UserVerifyView(TemplateView):

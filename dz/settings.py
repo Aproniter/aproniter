@@ -73,7 +73,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'dz.wsgi.application'
 
-DATABASES = {"default": env.dj_db_url("DB_URL")}
+# DATABASES = {"default": env.dj_db_url("DB_URL")}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase'
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

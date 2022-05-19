@@ -51,6 +51,11 @@
                         <a class="dropdown-item" href="{% url 'glossary' %}" id="glossary_link">Глоссарий</a>
                     </div>
                 </li>
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link auto_active_link" href="{% url 'users:myfriends' user.id %}" id="friends_link">Друзья</a>
+                </li>
+                {% endif %}
                 {% if user.is_staff %}
                 <li class="nav-item">
                     <a class="nav-link auto_active_link" href="/admin" id="control_panel_link">Панель управления</a>

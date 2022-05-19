@@ -71,6 +71,10 @@ class Profile(models.Model):
         blank=True,
         null=True
     )
+    friend_requests = models.ManyToManyField(
+        User,
+        related_name='friend_requests'
+    )
 
     def __str__(self):
         return f'{self.user.username}\'s profile'
@@ -140,3 +144,31 @@ class Profile(models.Model):
                 and not self.is_password_recovery_key_expired():
             return True
         return False
+
+
+class Friend(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Аккаунт',
+        related_name='account',
+        null=True,
+        blank=True,
+    )
+
+    friend = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Друг',
+        related_name='friend',
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ['-user']
+        verbose_name = 'Друг'
+        verbose_name_plural = 'Друзья'
+
+    def __str__(self):
+        return str(self.user)
