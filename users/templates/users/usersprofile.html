@@ -57,7 +57,11 @@
                     {% if friend %}
                         <a class="btn btn-outline-danger" href="{% url 'drevo' %}">Удалить из друзей</a>
                     {% else %}
-                        <a class="btn btn-outline-success" href="{% url 'users:friend_request' object.id %}">Предложить дружбу</a>
+                        {% if not friend_requests %}
+                            <a class="btn btn-outline-success" href="{% url 'users:friend_request' object.id %}">Предложить дружбу</a>
+                        {% else %}
+                            <span class="btn btn-outline-secondary">Предложение дружбы отправлено</span>
+                        {% endif %}
                     {% endif %}
                 </p>
                 {% endif %}

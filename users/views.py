@@ -173,6 +173,7 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
 
         context['object'] = None
         context['friend'] = None
+        context['friend_requests'] = None
 
         _id = self.kwargs.get(self.pk_url_kwarg)
         if _id:
@@ -181,7 +182,9 @@ class UserProfileTemplateView(LoginRequiredMixin, TemplateView):
                 context['object'] = _object
                 if Friend.objects.filter(user=self.request.user.id, friend=_id):
                     context['friend'] = True
-
+                if (User.objects.filter(id=self.request.user.id).first()
+                        in Profile.objects.filter(user=_object).first().friend_requests.all()):
+                    context['friend_requests'] = True
         context['title'] = f'Профиль пользователя {_object.username}'
         return context
 
@@ -210,16 +213,38 @@ class UserFriendsTemplateView(LoginRequiredMixin, TemplateView):
 
 
 class UserFriendRequest(View):
-    model = Profile
-
     def get(self, request, *args, **kwargs):
-        print(kwargs)
-        print(self.request.user.id)
-        _object = Profile.objects.filter(user=kwargs['obj']).first()
+        user = User.objects.filter(id=self.request.user.id).first()
+        _object = Profile.objects.filter(id=kwargs['obj']).first()
         if _object:
-            _object.friend_requests.add(self.request.user.id)
+            _object.friend_requests.add(user)
             _object.save()
         return HttpResponseRedirect(reverse('users:usersprofile', args=[kwargs['obj']]))
+
+
+class UserFriendVerify(View):
+    def get(self, request, **kwargs):
+        button = int(request.GET.get('id', 0))
+        user_to = User.objects.filter(id=self.request.user.id).first()
+        user_from = User.objects.filter(id=kwargs['to']).first()
+        if button:
+            friend_accept = Friend(user=user_from, friend=user_to)
+            friend_accept.save()
+        profile = Profile.objects.filter(
+            user=User.objects.filter(id=self.request.user.id).first()
+        ).first()
+        print(profile.friend_requests.all())
+        profile.friend_requests.remove(user_to)
+        print(profile.friend_requests.all())
+        return HttpResponseRedirect(reverse('users:myfriends', args=[kwargs['to']]))
+
+
+class UserFriendDelete(View):
+    def get(self, *args, **kwargs):
+        user_to = User.objects.filter(id=self.request.user.id).first()
+        user_from = User.objects.filter(id=kwargs['to']).first()
+        Friend(user=user_from, friend=user_to).delete()
+        return HttpResponseRedirect(reverse('users:myfriends', args=[kwargs['to']]))
 
 
 class UserVerifyView(TemplateView):
