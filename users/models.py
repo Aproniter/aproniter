@@ -171,4 +171,4 @@ class Friend(models.Model):
         verbose_name_plural = 'Друзья'
 
     def __str__(self):
-        return str(self.user)
+        return str(self.friend)

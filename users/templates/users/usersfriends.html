@@ -12,7 +12,7 @@
                         {% for friend in friends %}
                             <li>
                                 {{ friend }}
-                                <a class="btn btn-outline-success" href="{% url 'users:friend_delete' object.id friend.id %}">Удалить</a>
+                                <a class="btn btn-outline-success" href="{% url 'users:friend_delete' friend.friend.id object.id %}">Удалить</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -23,8 +23,8 @@
                         {% for friend_request in friend_requests.all %}
                             <li>
                                 {{ friend_request }}
-                                <a class="btn btn-outline-success" href="{% url 'users:friend_verify' object.id friend_request.id %}?id=1">Принять</a>
-                                <a class="btn btn-outline-danger" href="{% url 'users:friend_verify' object.id friend_request.id %}?id=0">Отклонить</a>
+                                <a class="btn btn-outline-success" href="{% url 'users:friend_verify' friend_request.id object.id %}?id=1">Принять</a>
+                                <a class="btn btn-outline-danger" href="{% url 'users:friend_verify' friend_request.id object.id %}?id=0">Отклонить</a>
                             </li>
                         {% endfor %}
                     </ul>

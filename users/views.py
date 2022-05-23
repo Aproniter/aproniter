@@ -226,24 +226,22 @@ class UserFriendVerify(View):
     def get(self, request, **kwargs):
         button = int(request.GET.get('id', 0))
         user_to = User.objects.filter(id=self.request.user.id).first()
-        user_from = User.objects.filter(id=kwargs['to']).first()
+        user_from = User.objects.filter(id=kwargs['from']).first()
         if button:
-            friend_accept = Friend(user=user_from, friend=user_to)
+            friend_accept = Friend(user=user_to, friend=user_from)
             friend_accept.save()
         profile = Profile.objects.filter(
             user=User.objects.filter(id=self.request.user.id).first()
         ).first()
-        print(profile.friend_requests.all())
-        profile.friend_requests.remove(user_to)
-        print(profile.friend_requests.all())
+        profile.friend_requests.remove(user_from)
         return HttpResponseRedirect(reverse('users:myfriends', args=[kwargs['to']]))
 
 
 class UserFriendDelete(View):
     def get(self, *args, **kwargs):
         user_to = User.objects.filter(id=self.request.user.id).first()
-        user_from = User.objects.filter(id=kwargs['to']).first()
-        Friend(user=user_from, friend=user_to).delete()
+        user_from = User.objects.filter(id=kwargs['from']).first()
+        Friend.objects.filter(user=user_to, friend=user_from).first().delete()
         return HttpResponseRedirect(reverse('users:myfriends', args=[kwargs['to']]))
 
 
